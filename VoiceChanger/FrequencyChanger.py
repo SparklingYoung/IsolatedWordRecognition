@@ -14,6 +14,15 @@ global audio_name
 global frame_minus_left, frame_minus_right, frame_add_left, frame_add_right
 global step
 
+global uniform_decrease_num, uniform_increase_num
+#每帧变化相同比率
+uniform_decrease_num = 1  # 衍生减小音量的音频数目
+uniform_increase_num = 1  # 衍生增大音量的音频数目
+
+global not_uniform_decrease_num, not_uniform_increase_num
+#每帧变化不同比率
+not_uniform_decrease_num = 1  # 衍生减小音量的音频数目
+not_uniform_increase_num = 1  # 衍生增大音量的音频数目
 
 #将多少帧分为一组处理
 step = 100
@@ -34,10 +43,11 @@ def printError():
     sys.exit()
 
 
+##########################################uniformDecreaseFrequency########################################
 #增加帧数，降低频率
 #参数1:衍生音频数量
 #参数2:衍生音频起始数
-def decreaseFrequency(num_total,num_start):
+def uniformDecreaseFrequency(num_total,num_start):
     global radio_minus_left,radio_minus_right
     global framerate, num_frame
     global step
@@ -48,7 +58,7 @@ def decreaseFrequency(num_total,num_start):
             os.mkdir(sys.argv[2]+speaker_name)
 
         frame_add = random.randint(frame_add_left,frame_add_right)
-        print 'add ' + str(frame_add)
+
 
         frequency_audio = wave.open(sys.argv[2]+speaker_name+'/'+audio_name + '_frequency_' + str(count) + '.wav','wb')
         count = count + 1
@@ -73,7 +83,7 @@ def decreaseFrequency(num_total,num_start):
                     frame_copy.append(index)
 
             frame_copy.sort()#从小到大排序
-            print frame_copy
+
             current_copy_index = frame_copy[0]#current_copy_index是当前待复制帧下标
 
             for k in range(step):
@@ -88,18 +98,6 @@ def decreaseFrequency(num_total,num_start):
                     if(frame_copy.__len__()>0):
                         current_copy_index = frame_copy[0]
 
-
-        '''
-        #复制前frame_add帧的内容
-        for j in range(quotient):
-            for k in range(step):
-                value = volume[j*step+k]
-                byte = struct.pack('h',value)
-                audio_new_bytes = audio_new_bytes + byte
-                num_frame_new = num_frame_new + 1
-                if(k <= frame_add):
-                    audio_new_bytes = audio_new_bytes + byte
-                    num_frame_new = num_frame_new + 1'''
 
 
         for k in range(remainder):
@@ -119,11 +117,13 @@ def decreaseFrequency(num_total,num_start):
         frequency_audio.close()
 
 
+##########################################uniformIncreaseFrequency########################################
 #减少帧数，提高频率
 #参数1:衍生音频数量
 #参数2:衍生音频起始数
-def increaseFrequency(num_total,num_start):
+def uniformIncreaseFrequency(num_total,num_start):
     global frame_add_left, frame_add_right
+    global framerate, num_frame
     global step
     count = num_start
 
@@ -133,7 +133,7 @@ def increaseFrequency(num_total,num_start):
             os.mkdir(sys.argv[2]+speaker_name)
 
         frame_minus = random.randint(frame_minus_left, frame_minus_right)
-        print 'minus ' + str(frame_minus)
+
 
         frequency_audio = wave.open(sys.argv[2]+speaker_name+'/'+audio_name + '_frequency_' + str(count) + '.wav','wb')
         count = count + 1
@@ -158,7 +158,7 @@ def increaseFrequency(num_total,num_start):
                     frame_delete.append(index)
 
             frame_delete.sort()#从小到大排序
-            print frame_delete
+
             current_delete_index = frame_delete[0]#current_delete_index是当前待删除帧下标
 
             for k in range(step):
@@ -173,18 +173,6 @@ def increaseFrequency(num_total,num_start):
                     audio_new_bytes = audio_new_bytes + byte
                     num_frame_new = num_frame_new + 1
 
-        '''
-        #每个step中删除前frame_add个偶数帧
-        for j in range(quotient):
-            for k in range(step):
-                if((k%2 == 0) and (k/2 <= frame_minus)):
-                    continue
-                else:
-                    value = volume[j * step + k]
-                    byte = struct.pack('h',value)
-                    audio_new_bytes = audio_new_bytes + byte
-                    num_frame_new = num_frame_new + 1
-        '''
 
         #删除前frame_add个偶数帧
         for k in range(remainder):
@@ -201,6 +189,257 @@ def increaseFrequency(num_total,num_start):
         frequency_audio.setparams(frequency_params)
         frequency_audio.writeframes(audio_new_bytes)
         frequency_audio.close()
+
+##########################################notUniformDecreaseFrequency########################################
+# 增加帧数，降低频率
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def notUniformDecreaseFrequency(num_total, num_start):
+    global radio_minus_left, radio_minus_right
+    global framerate, num_frame
+    global step
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        frequency_audio = wave.open(
+            sys.argv[2] + speaker_name + '/' + audio_name + '_frequency_' + str(count) + '.wav', 'wb')
+        count = count + 1
+        audio_new_bytes = ""
+
+        quotient = num_frame / step
+        remainder = num_frame % step
+
+        num_frame_new = 0
+
+        # 每个step中随机选取frame_add个要复制的帧
+        for j in range(quotient):
+            frame_add = random.randint(frame_add_left, frame_add_right)
+            # 随机选取frame_add个复制帧
+            frame_copy = []
+            while (True):
+                if (frame_copy.__len__() >= frame_add):
+                    break;
+                index = random.randint(0, step)
+                if index in frame_copy:
+                    continue
+                else:
+                    frame_copy.append(index)
+
+            frame_copy.sort()  # 从小到大排序
+
+            current_copy_index = frame_copy[0]  # current_copy_index是当前待复制帧下标
+
+            for k in range(step):
+                value = volume[j * step + k]
+                byte = struct.pack('h', value)
+                audio_new_bytes = audio_new_bytes + byte
+                num_frame_new = num_frame_new + 1
+                if (k == current_copy_index):
+                    audio_new_bytes = audio_new_bytes + byte
+                    num_frame_new = num_frame_new + 1
+                    del frame_copy[0]
+                    if (frame_copy.__len__() > 0):
+                        current_copy_index = frame_copy[0]
+
+        for k in range(remainder):
+            value = volume[quotient * step + k]
+            byte = struct.pack('h', value)
+            audio_new_bytes = audio_new_bytes + byte
+            num_frame_new = num_frame_new + 1
+            if (k <= frame_add):
+                audio_new_bytes = audio_new_bytes + byte
+                num_frame_new = num_frame_new + 1
+
+        print num_frame, num_frame_new
+        frequency_params = [1, 2, framerate, num_frame_new, params[4], params[5]]
+        frequency_audio.setparams(frequency_params)
+        frequency_audio.writeframes(audio_new_bytes)
+        frequency_audio.close()
+
+
+
+##########################################notUniformIncreaseFrequency########################################
+#  减少帧数，提高频率
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def notUniformIncreaseFrequency(num_total, num_start):
+    global frame_add_left, frame_add_right
+    global framerate, num_frame
+    global step
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        frequency_audio = wave.open(
+            sys.argv[2] + speaker_name + '/' + audio_name + '_frequency_' + str(count) + '.wav', 'wb')
+        count = count + 1
+        audio_new_bytes = ""
+
+        quotient = num_frame / step
+        remainder = num_frame % step
+
+        num_frame_new = 0
+
+        # 每个step中随机选取frame_minus个要删除的帧
+        for j in range(quotient):
+            frame_minus = random.randint(frame_minus_left, frame_minus_right)
+            # 随机要删除的帧
+            frame_delete = []
+            while (True):
+                if (frame_delete.__len__() >= frame_minus):
+                    break;
+                index = random.randint(0, step)
+                if index in frame_delete:
+                    continue
+                else:
+                    frame_delete.append(index)
+
+            frame_delete.sort()  # 从小到大排序
+
+            current_delete_index = frame_delete[0]  # current_delete_index是当前待删除帧下标
+
+            for k in range(step):
+                if (k == current_delete_index):
+                    del frame_delete[0]
+                    if (frame_delete.__len__() > 0):
+                        current_delete_index = frame_delete[0]
+                    continue
+                else:
+                    value = volume[j * step + k]
+                    byte = struct.pack('h', value)
+                    audio_new_bytes = audio_new_bytes + byte
+                    num_frame_new = num_frame_new + 1
+
+        # 删除前frame_add个偶数帧
+        for k in range(remainder):
+            if ((k % 2 == 0) and (k / 2 <= frame_minus)):
+                continue
+            else:
+                value = volume[quotient * step + k]
+                byte = struct.pack('h', value)
+                audio_new_bytes = audio_new_bytes + byte
+                num_frame_new = num_frame_new + 1
+
+        print num_frame, num_frame_new
+        frequency_params = [1, 2, framerate, num_frame_new, params[4], params[5]]
+        frequency_audio.setparams(frequency_params)
+        frequency_audio.writeframes(audio_new_bytes)
+        frequency_audio.close()
+
+
+
+
+##########################################changeFrequencyValue########################################
+# 减少帧数，提高频率
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def changeFrequencyValue(uniform, decrease, num_total, num_start):
+    global frame_add_left, frame_add_right
+    global radio_minus_left, radio_minus_right
+    global framerate, num_frame
+    global step
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        if(uniform):
+            if(decrease):
+                frame_num_change = random.randint(frame_minus_left, frame_minus_right)
+            else:
+                frame_num_change = random.randint(frame_add_left, frame_add_right)
+
+        frequency_audio = wave.open(
+            sys.argv[2] + speaker_name + '/' + audio_name + '_frequency_' + str(count) + '.wav', 'wb')
+        count = count + 1
+        audio_new_bytes = ""
+
+        quotient = num_frame / step
+        remainder = num_frame % step
+
+        num_frame_new = 0
+
+        # 每个step中随机选取frame_num_change个要删除或复制的帧
+        for j in range(quotient):
+            if (not uniform):
+                if (decrease):
+                    frame_num_change = random.randint(frame_minus_left, frame_minus_right)
+                else:
+                    frame_num_change = random.randint(frame_add_left, frame_add_right)
+
+
+            # 随机要删除或复制的帧
+            frame_change = []
+            while (True):
+                if (frame_change.__len__() >= frame_num_change):
+                    break;
+                index = random.randint(0, step)
+                if index in frame_change:
+                    continue
+                else:
+                    frame_change.append(index)
+
+            frame_change.sort()  # 从小到大排序
+            current_change_index = frame_change[0]  # current_change_index是当前待删除或复制帧下标
+
+            if(decrease):
+                for k in range(step):
+                    if (k == current_change_index):
+                        del frame_change[0]
+                        if (frame_change.__len__() > 0):
+                            current_change_index = frame_change[0]
+                        continue
+                    else:
+                        value = volume[j * step + k]
+                        byte = struct.pack('h', value)
+                        audio_new_bytes = audio_new_bytes + byte
+                        num_frame_new = num_frame_new + 1
+            else:
+                for k in range(step):
+                    value = volume[j * step + k]
+                    byte = struct.pack('h', value)
+                    audio_new_bytes = audio_new_bytes + byte
+                    num_frame_new = num_frame_new + 1
+                    if (k == current_change_index):
+                        audio_new_bytes = audio_new_bytes + byte
+                        num_frame_new = num_frame_new + 1
+                        del frame_change[0]
+                        if (frame_change.__len__() > 0):
+                            current_change_index = frame_change[0]
+
+        # 删除或复制前frame_num_change个偶数帧
+        if(decrease):
+            for k in range(remainder):
+                if ((k % 2 == 0) and (k / 2 <= frame_num_change)):
+                    continue
+                else:
+                    value = volume[quotient * step + k]
+                    byte = struct.pack('h', value)
+                    audio_new_bytes = audio_new_bytes + byte
+                    num_frame_new = num_frame_new + 1
+
+        else:
+            for k in range(remainder):
+                value = volume[quotient * step + k]
+                byte = struct.pack('h', value)
+                audio_new_bytes = audio_new_bytes + byte
+                num_frame_new = num_frame_new + 1
+                if (k <= frame_num_change):
+                    audio_new_bytes = audio_new_bytes + byte
+                    num_frame_new = num_frame_new + 1
+
+        print num_frame, num_frame_new
+        frequency_params = [1, 2, framerate, num_frame_new, params[4], params[5]]
+        frequency_audio.setparams(frequency_params)
+        frequency_audio.writeframes(audio_new_bytes)
+        frequency_audio.close()
+
 
 
 
@@ -220,12 +459,22 @@ def changeFrequency(audio_path):
         volume[i] = value
     audio.close()
 
-    decrease_num = 50#衍生减小音量的音频数据
-    decrease_start = 0#从标号为decrease_start开始标记
-    decreaseFrequency(decrease_num,decrease_start)
+    global uniform_decrease_num, uniform_increase_num
+    uniform_decrease_start = 0#从标号为decrease_start开始标记
+    #changeFrequencyValue(True,True,uniform_decrease_num,uniform_decrease_start)
+    uniformDecreaseFrequency(uniform_decrease_num,uniform_decrease_start)
+    uniform_increase_start = uniform_decrease_num + uniform_decrease_start
+    #changeFrequencyValue(True,False,uniform_increase_num,uniform_increase_start)
+    uniformIncreaseFrequency(uniform_increase_num,uniform_increase_start)
 
-    increase_num = 50#衍生增大音量的音频数目
-    increaseFrequency(increase_num,decrease_num+decrease_start)
+    global not_uniform_decrease_num, not_uniform_increase_num
+    not_uniform_decrease_start = uniform_increase_start + uniform_increase_num
+    notUniformDecreaseFrequency(not_uniform_decrease_num,not_uniform_decrease_start)
+    #changeFrequencyValue(False,True,not_uniform_decrease_num,not_uniform_decrease_start)
+    not_uniform_increase_start = not_uniform_decrease_start + not_uniform_decrease_num
+    notUniformIncreaseFrequency(not_uniform_increase_num,not_uniform_increase_start)
+    #changeFrequencyValue(False,False,not_uniform_increase_num,not_uniform_increase_start)
+
 
 
 
