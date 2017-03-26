@@ -21,11 +21,11 @@ step = 100
 
 #音频帧数减少
 frame_minus_left = 1
-frame_minus_right = step/3
+frame_minus_right = 2*step/5
 
 #音频帧数增加
 frame_add_left = 1
-frame_add_right = step/3
+frame_add_right = 2*step/5
 
 #输入错误提示信息
 def printError():
@@ -220,11 +220,11 @@ def changeFrequency(audio_path):
         volume[i] = value
     audio.close()
 
-    decrease_num = 1#衍生减小音量的音频数据
+    decrease_num = 50#衍生减小音量的音频数据
     decrease_start = 0#从标号为decrease_start开始标记
     decreaseFrequency(decrease_num,decrease_start)
 
-    increase_num = 1#衍生增大音量的音频数目
+    increase_num = 50#衍生增大音量的音频数目
     increaseFrequency(increase_num,decrease_num+decrease_start)
 
 
