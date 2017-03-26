@@ -27,7 +27,6 @@ not_uniform_increase_num = 1  # 衍生增大音量的音频数目
 #将多少帧分为一组处理
 step = 100
 
-
 #音频帧数减少
 frame_minus_left = 1
 frame_minus_right = 2*step/5
@@ -44,7 +43,7 @@ def printError():
 
 
 ##########################################uniformDecreaseFrequency########################################
-#增加帧数，降低频率
+#每step内的帧改变数目相同，增加帧数，降低频率
 #参数1:衍生音频数量
 #参数2:衍生音频起始数
 def uniformDecreaseFrequency(num_total,num_start):
@@ -118,7 +117,7 @@ def uniformDecreaseFrequency(num_total,num_start):
 
 
 ##########################################uniformIncreaseFrequency########################################
-#减少帧数，提高频率
+#每step内的帧改变数目相同，减少帧数，提高频率
 #参数1:衍生音频数量
 #参数2:衍生音频起始数
 def uniformIncreaseFrequency(num_total,num_start):
@@ -191,7 +190,7 @@ def uniformIncreaseFrequency(num_total,num_start):
         frequency_audio.close()
 
 ##########################################notUniformDecreaseFrequency########################################
-# 增加帧数，降低频率
+# 每step内的帧改变数目不相同，增加帧数，降低频率
 # 参数1:衍生音频数量
 # 参数2:衍生音频起始数
 def notUniformDecreaseFrequency(num_total, num_start):
@@ -262,7 +261,7 @@ def notUniformDecreaseFrequency(num_total, num_start):
 
 
 ##########################################notUniformIncreaseFrequency########################################
-#  减少帧数，提高频率
+# 每step内的帧改变数目不相同，减少帧数，提高频率
 # 参数1:衍生音频数量
 # 参数2:衍生音频起始数
 def notUniformIncreaseFrequency(num_total, num_start):
@@ -335,9 +334,11 @@ def notUniformIncreaseFrequency(num_total, num_start):
 
 
 ##########################################changeFrequencyValue########################################
-# 减少帧数，提高频率
-# 参数1:衍生音频数量
-# 参数2:衍生音频起始数
+# 改变帧数，改变频率
+# 参数1:每个step改变的帧数是否相同，若为True则相同，若为False则不相同
+# 参数2:是否是降低频率。若为True，则帧数增加，降低频率；若为False，则帧数减少，提高频率
+# 参数3:衍生音频数量
+# 参数4:衍生音频起始数
 def changeFrequencyValue(uniform, decrease, num_total, num_start):
     global frame_add_left, frame_add_right
     global radio_minus_left, radio_minus_right
