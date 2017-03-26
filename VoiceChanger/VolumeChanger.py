@@ -22,13 +22,13 @@ volume_add_right = 5
 
 global uniform_decrease_num, uniform_increase_num
 #每帧变化相同比率
-uniform_decrease_num = 10  # 衍生减小音量的音频数目
-uniform_increase_num = 10  # 衍生增大音量的音频数目
+uniform_decrease_num = 1  # 衍生减小音量的音频数目 10
+uniform_increase_num = 1  # 衍生增大音量的音频数目 10
 
 global not_uniform_decrease_num, not_uniform_increase_num
 #每帧变化不同比率
-not_uniform_decrease_num = 50  # 衍生减小音量的音频数目
-not_uniform_increase_num = 50  # 衍生增大音量的音频数目
+not_uniform_decrease_num = 1  # 衍生减小音量的音频数目 50
+not_uniform_increase_num = 1  # 衍生增大音量的音频数目 50
 
 #输入错误提示信息
 def printError():
@@ -37,11 +37,169 @@ def printError():
     sys.exit()
 
 
+
+
+
+##########################################uniformDecreaseVolume########################################
+# 统一方式降低音量，每帧的音量改变的比率相同
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def uniformDecreaseVolume(num_total, num_start):
+    print "uniformDecreaseVolume"
+    global volume_minus_left, volume_minus_right
+    global framerate, num_frame
+
+    radio = random.uniform(volume_minus_left, volume_minus_right)
+
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        amplitude_audio = wave.open(
+            sys.argv[2] + speaker_name + '/' + audio_name + '_volume_' + str(count) + '.wav',
+            'wb')
+        count = count + 1
+        amplitude_params = [1, 2, framerate, num_frame, params[4], params[5]]
+        amplitude_audio.setparams(amplitude_params)
+        audio_new_bytes = ""
+
+        for j in range(num_frame):
+            value = short(volume[j] * radio)
+            byte = struct.pack('h', value)
+            audio_new_bytes = audio_new_bytes + byte
+
+        amplitude_audio.writeframes(audio_new_bytes)
+        amplitude_audio.close()
+
+
+
+
+
+##########################################uniformIncreaseVolume########################################
+# 统一方式提高音量，每帧的音量改变的比率相同
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def uniformIncreaseVolume(num_total,num_start):
+    print "uniformIncreaseVolume"
+    global volume_add_left, volume_add_right
+    global framerate, num_frame
+
+    radio = random.uniform(volume_add_left, volume_add_right)
+
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        amplitude_audio = wave.open(sys.argv[2] + speaker_name + '/' + audio_name + '_volume_' + str(count) + '.wav',
+                                    'wb')
+        count = count + 1
+        amplitude_params = [1, 2, framerate, num_frame, params[4], params[5]]
+        amplitude_audio.setparams(amplitude_params)
+        audio_new_bytes = ""
+
+        for j in range(num_frame):
+            value = short(volume[j] * radio)
+            byte = struct.pack('h', value)
+            audio_new_bytes = audio_new_bytes + byte
+
+        amplitude_audio.writeframes(audio_new_bytes)
+        amplitude_audio.close()
+
+
+
+
+
+
+
+##########################################notUniformDecreaseVolume########################################
+# 非统一方式降低音量，每帧的音量改变的比率不同
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def notUniformDecreaseVolume(num_total, num_start):
+    print "notUniformDecreaseVolume"
+    global volume_minus_left, volume_minus_right
+    global framerate, num_frame
+
+
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        amplitude_audio = wave.open(
+            sys.argv[2] + speaker_name + '/' + audio_name + '_volume_' + str(count) + '.wav',
+            'wb')
+        count = count + 1
+        amplitude_params = [1, 2, framerate, num_frame, params[4], params[5]]
+        amplitude_audio.setparams(amplitude_params)
+        audio_new_bytes = ""
+
+        for j in range(num_frame):
+            radio = random.uniform(volume_minus_left, volume_minus_right)
+            value = short(volume[j] * radio)
+            byte = struct.pack('h', value)
+            audio_new_bytes = audio_new_bytes + byte
+
+        amplitude_audio.writeframes(audio_new_bytes)
+        amplitude_audio.close()
+
+
+
+
+
+
+
+##########################################notUniformIncreaseVolume########################################
+# 非统一方式提高音量，每帧的音量改变的比率不同
+# 参数1:衍生音频数量
+# 参数2:衍生音频起始数
+def notUniformIncreaseVolume(num_total, num_start):
+    print "notUniformIncreaseVolume"
+    global volume_add_left, volume_add_right
+    global framerate, num_frame
+
+    count = num_start
+
+    for i in range(num_total):
+        if (not os.path.exists(sys.argv[2] + speaker_name)):
+            os.mkdir(sys.argv[2] + speaker_name)
+
+        amplitude_audio = wave.open(sys.argv[2] + speaker_name + '/' + audio_name + '_volume_' + str(count) + '.wav',
+                                    'wb')
+        count = count + 1
+        amplitude_params = [1, 2, framerate, num_frame, params[4], params[5]]
+        amplitude_audio.setparams(amplitude_params)
+        audio_new_bytes = ""
+
+        for j in range(num_frame):
+            radio = random.uniform(volume_add_left, volume_add_right)
+            value = short(volume[j] * radio)
+            byte = struct.pack('h', value)
+            audio_new_bytes = audio_new_bytes + byte
+
+        amplitude_audio.writeframes(audio_new_bytes)
+        amplitude_audio.close()
+
+
+
+
+
+
+
+##########################################changeVolumeValue########################################
 #改变音量
-#参数1:若降低音量则为True，若增加音量则为False
-#参数2:衍生音频数量
-#参数3:衍生音频起始数
+# 改变帧数，改变频率
+# 参数1:每帧音量改变的幅度是否相同，若为True则相同，若为False则不相同
+# 参数2:是否是降低音量。若为True，则音量降低；若为False，则音量提高
+# 参数3:衍生音频数量
+# 参数4:衍生音频起始数
 def changeVolumeValue(uniform,decrease,num_total,num_start):
+    print "changeVolumeValue"
     global volume_add_left, volume_add_right, volume_minus_left, volume_minus_right
     global framerate, num_frame
 
@@ -97,21 +255,24 @@ def changeVolume(audio_path):
 
     #每帧改变相同的比率
     global uniform_decrease_num, uniform_increase_num
-    global not_uniform_decrease_num, not_uniform_increase_num
 
 
     uniform_decrease_start = 0#每帧降低相同比率起始音频index
+    #changeVolumeValue(True,True,uniform_decrease_num,uniform_decrease_start)
+    uniformDecreaseVolume(uniform_decrease_num,uniform_decrease_start)
     uniform_increase_start = uniform_decrease_num+uniform_decrease_start#每帧升高相同比率起始音频index
+    uniformIncreaseVolume(uniform_increase_num,uniform_increase_start)
+    #changeVolumeValue(True,False,uniform_increase_num,uniform_increase_start)
 
-    changeVolumeValue(True,True,uniform_decrease_num,uniform_decrease_start)
-    changeVolumeValue(True,False,uniform_increase_num,uniform_increase_start)
 
+    global not_uniform_decrease_num, not_uniform_increase_num
     #每帧改变不同的比率
     not_uniform_decrease_start = uniform_increase_start + uniform_increase_num#每帧降低不同比率起始音频index
+    #changeVolumeValue(False, True, not_uniform_decrease_num, not_uniform_decrease_start)
+    notUniformDecreaseVolume(not_uniform_decrease_num,not_uniform_decrease_start)
     not_uniform_increase_start = not_uniform_decrease_start + not_uniform_decrease_num#每帧升高不同比率起始音频index
-
-    changeVolumeValue(False, True, not_uniform_decrease_num, not_uniform_decrease_start)
-    changeVolumeValue(False, False, not_uniform_increase_num, not_uniform_increase_start)
+    #changeVolumeValue(False, False, not_uniform_increase_num, not_uniform_increase_start)
+    notUniformIncreaseVolume(not_uniform_increase_num,not_uniform_increase_start)
 
 
 def getWavFiles():
